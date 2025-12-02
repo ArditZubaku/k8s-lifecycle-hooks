@@ -1,0 +1,9 @@
+FROM golang:1.24.3-alpine AS build
+WORKDIR /src
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o /app
+
+FROM alpine:3.22.2
+RUN apk --no-cache add ca-certificates=20250911-r0
+COPY --from=build /app /app
+CMD ["/app"]
