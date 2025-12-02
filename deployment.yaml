@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-svc
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: test-svc
+  template:
+    metadata:
+      labels:
+        app: test-svc
+    spec:
+      terminationGracePeriodSeconds: 1200
+      containers:
+        - name: test-svc
+          image: test_svc:latest
+          imagePullPolicy: Never # Use local image
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/sh"
+                  - "-c"
+                  - 'echo "Container started at $(date)" > /tmp/poststart.log'
+            preStop:
+              exec:
+                command:
+                  - "/bin/sh"
+                  - "-c"
+                  - |
+                    cat /tmp/poststart.log > /tmp/prestop.log &&
+                    for i in $(seq 1 100); do
+                      echo "$i Container stopping at $(date)" >> /tmp/prestop.log;
+                      sleep 1;
+                    done
