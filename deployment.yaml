@@ -25,7 +25,10 @@ spec:
                 command:
                   - "/bin/sh"
                   - "-c"
-                  - 'echo "Container started at $(date)" > /tmp/poststart.log'
+                  - |
+                    echo "Container started at $(date)" > /tmp/poststart.log &&
+                    which nc >> /tmp/which.log 2>&1 || true &&
+                    which curl >> /tmp/which.log 2>&1 || true
             preStop:
               exec:
                 command:
